@@ -1,0 +1,20 @@
+# inicializarGrafica.py
+def inicializarGrafica(ax1, ax2, maxPuntos):
+    # Gráfica superior (señales originales)
+    ax1.set_xlim(0, maxPuntos)
+    ax1.set_ylim(0, 1024)
+    ax1.set_ylabel('Valor LDR', color='white')
+    ax1.set_title('Lecturas Originales de los Sensores LDR', color='white')
+    ax1.legend(loc='upper right')
+    ax1.grid(color='gray', linestyle=':', alpha=0.5)
+    ax1.tick_params(colors='white')
+    
+    # Gráfica inferior (señales filtradas)
+    ax2.set_xlim(0, maxPuntos)
+    ax2.set_ylim(0, 1024)
+    ax2.set_ylabel('Valor LDR (Filtrado)', color='white')
+    ax2.set_xlabel('Muestras', color='white')
+    ax2.set_title('Lecturas Filtradas de los Sensores LDR', color='white')
+    ax2.legend(loc='upper right')
+    ax2.grid(color='gray', linestyle=':', alpha=0.5)
+    ax2.tick_params(colors='white')
