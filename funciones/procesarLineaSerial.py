@@ -7,7 +7,7 @@ def procesarLineaSerial(linea, tamanoVentana,
                         bufferLdrTlFiltrado, bufferLdrTrFiltrado,
                         bufferLdrBlFiltrado, bufferLdrBrFiltrado):
     if linea.startswith('Horizontal'):
-        return False  # Línea de encabezado, ignorar
+        return False  
     
     datos = linea.split(',')
     if len(datos) == 6:
