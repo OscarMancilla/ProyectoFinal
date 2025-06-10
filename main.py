@@ -6,6 +6,7 @@ from collections import deque
 import sys
 import platform
 from matplotlib.patches import Rectangle
+import random  # Para añadir ruido
 
 from funciones import (
     filtroMediaMovil,
@@ -61,11 +62,28 @@ lineaLdrTrFiltrado, = ax2.plot([], [], 'cyan', linestyle='--', label='LDR Top Ri
 lineaLdrBlFiltrado, = ax2.plot([], [], 'magenta', linestyle='--', label='LDR Bottom Left (Filtrado)')
 lineaLdrBrFiltrado, = ax2.plot([], [], 'yellow', linestyle='--', label='LDR Bottom Right (Filtrado)')
 
-# Cuadro de texto para servos
-servo_text = fig.text(0.85, 0.7, '', color='white', bbox=dict(facecolor='#333333', edgecolor='white', boxstyle='round'))
+# Cuadro de texto para servos - Posición ajustada más a la derecha y arriba
+servo_box_props = dict(boxstyle='round', facecolor='#333333', edgecolor='white', alpha=0.9)
+servo_text = fig.text(0.88, 0.65,  # Cambiado de 0.85, 0.5 a 0.88, 0.65
+                     'Posición de Servomotores:\n\n'
+                     'Horizontal: --°\n'
+                     'Vertical: --°', 
+                     color='white', 
+                     bbox=servo_box_props,
+                     fontsize=11,
+                     verticalalignment='center',
+                     horizontalalignment='center')
+
+# Indicador de estado de conexión
+status_text = fig.text(0.88, 0.55,  # Ajustado para mantener relación con servo_text
+                      'Estado: Conectado' if ser else 'Estado: Desconectado',
+                      color='lime' if ser else 'red',
+                      bbox=dict(boxstyle='round', facecolor='#333333', alpha=0.7),
+                      fontsize=10)
 
 # Marca Oscarm
-fig.text(0.85, 0.05, 'Oscarm', color='white', fontsize=12, style='italic', bbox=dict(facecolor='#333333', alpha=0.5))
+fig.text(0.88, 0.05, 'Oscarm', color='white', fontsize=12, style='italic', 
+         bbox=dict(facecolor='#333333', alpha=0.5))
 
 def inicializar():
     inicializarGrafica(ax1, ax2, maxPuntos)
@@ -74,8 +92,13 @@ def inicializar():
 
 def actualizar(frame):
     if ser is None:
+        status_text.set_text('Estado: Desconectado')
+        status_text.set_color('red')
         return (lineaLdrTl, lineaLdrTr, lineaLdrBl, lineaLdrBr,
                 lineaLdrTlFiltrado, lineaLdrTrFiltrado, lineaLdrBlFiltrado, lineaLdrBrFiltrado)
+
+    status_text.set_text('Estado: Conectado')
+    status_text.set_color('lime')
 
     while ser.in_waiting:
         try:
@@ -87,20 +110,31 @@ def actualizar(frame):
                 bufferLdrBlFiltrado, bufferLdrBrFiltrado)
 
             if procesado:
-                # Actualizar gráficas
-                lineaLdrTl.set_data(range(len(bufferLdrTl)), bufferLdrTl)
-                lineaLdrTr.set_data(range(len(bufferLdrTr)), bufferLdrTr)
-                lineaLdrBl.set_data(range(len(bufferLdrBl)), bufferLdrBl)
-                lineaLdrBr.set_data(range(len(bufferLdrBr)), bufferLdrBr)
+                # Añadir ruido a las señales originales (entre -20 y +20)
+                bufferLdrTl_noisy = [x + random.randint(-20, 20) for x in bufferLdrTl]
+                bufferLdrTr_noisy = [x + random.randint(-20, 20) for x in bufferLdrTr]
+                bufferLdrBl_noisy = [x + random.randint(-20, 20) for x in bufferLdrBl]
+                bufferLdrBr_noisy = [x + random.randint(-20, 20) for x in bufferLdrBr]
+
+                # Actualizar gráficas con señales ruidosas
+                lineaLdrTl.set_data(range(len(bufferLdrTl)), bufferLdrTl_noisy)
+                lineaLdrTr.set_data(range(len(bufferLdrTr)), bufferLdrTr_noisy)
+                lineaLdrBl.set_data(range(len(bufferLdrBl)), bufferLdrBl_noisy)
+                lineaLdrBr.set_data(range(len(bufferLdrBr)), bufferLdrBr_noisy)
 
                 lineaLdrTlFiltrado.set_data(range(len(bufferLdrTlFiltrado)), bufferLdrTlFiltrado)
                 lineaLdrTrFiltrado.set_data(range(len(bufferLdrTrFiltrado)), bufferLdrTrFiltrado)
                 lineaLdrBlFiltrado.set_data(range(len(bufferLdrBlFiltrado)), bufferLdrBlFiltrado)
                 lineaLdrBrFiltrado.set_data(range(len(bufferLdrBrFiltrado)), bufferLdrBrFiltrado)
 
-                # Actualizar cuadro de servos
+                # Actualizar cuadro de servos con formato mejorado
                 if bufferServoH and bufferServoV:
-                    servo_text.set_text(f'Servo Horizontal:\n{bufferServoH[-1]}°\n\nServo Vertical:\n{bufferServoV[-1]}°')
+                    servo_text.set_text(
+                        'Posición de Servomotores:\n\n'
+                        f'Horizontal: {bufferServoH[-1]:.1f}°\n'
+                        f'Vertical: {bufferServoV[-1]:.1f}°'
+                    )
+                    fig.canvas.draw_idle()  # Fuerza la actualización de la figura
 
                 if len(bufferLdrTl) >= maxPuntos:
                     ax1.set_xlim(len(bufferLdrTl) - maxPuntos, len(bufferLdrTl))
