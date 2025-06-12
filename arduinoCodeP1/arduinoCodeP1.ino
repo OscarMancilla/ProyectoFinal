@@ -1,6 +1,5 @@
 #include <Servo.h>
-#include <PID_v1.h>  // Librería PID de Arduino
-
+#include <PID_v1.h>  
 // Definición de Servos
 Servo servohori;
 Servo servoverti; 
@@ -15,7 +14,7 @@ const int servovLimitLow = 0;
 double SetpointH = 0, InputH = 0, OutputH = 0;
 double SetpointV = 0, InputV = 0, OutputV = 0;
 
-// Ajustes PID - estos valores pueden necesitar ajuste
+// Ajustes PID 
 double Kp = 0.8, Ki = 0.05, Kd = 0.1;
 PID pidH(&InputH, &OutputH, &SetpointH, Kp, Ki, Kd, DIRECT);
 PID pidV(&InputV, &OutputV, &SetpointV, Kp, Ki, Kd, DIRECT);
@@ -26,10 +25,10 @@ float servoh_f = 90.0;
 float servov_f = 90.0;
 
 // Asignando LDRs
-const int ldrtopl = A2; // Top Left
-const int ldrtopr = A1; // Top Right 
-const int ldrbotl = A3; // Bottom Left
-const int ldrbotr = A0; // Bottom Right
+const int ldrtopl = A2; // Arriba Izquierda
+const int ldrtopr = A1; // Arriba Derecha
+const int ldrbotl = A3; // Abajo Izquierda
+const int ldrbotr = A0; // Abajo Derecha
 
 // Filtrado
 const int numReadings = 3;
@@ -54,8 +53,8 @@ void setup() {
   
   // Configuración PID
   pidH.SetMode(AUTOMATIC);
-  pidH.SetOutputLimits(-50, 50);  // Limitar la salida del PID
-  pidH.SetSampleTime(10);         // Tiempo de muestreo en ms
+  pidH.SetOutputLimits(-50, 50);  
+  pidH.SetSampleTime(10);         
   
   pidV.SetMode(AUTOMATIC);
   pidV.SetOutputLimits(-50, 50);
@@ -67,7 +66,6 @@ void setup() {
 }
 
 void loop() {
-  // Lectura y filtrado
   totalTopL -= readingsTopL[readIndex];
   readingsTopL[readIndex] = analogRead(ldrtopl);
   totalTopL += readingsTopL[readIndex];
