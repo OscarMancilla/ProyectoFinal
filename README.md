@@ -44,7 +44,7 @@ El sistema emplea **4 sensores LDR (Light Dependent Resistor)** distribuidos en 
 
 ## 🖼️ Imagen Referencial
 
-![Sistema de Seguimiento Solar](Imagenes/ProyectoFinal.png)
+![Sistema de Seguimiento Solar](Imagenes/ProyectoFInal.png)
 ---
 ![Graficas de Movimiento](Imagenes/ProyectoFinalGraficas.png)
 
