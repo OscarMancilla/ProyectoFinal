@@ -1,4 +1,3 @@
-# main.py
 import serial
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -6,13 +5,17 @@ from collections import deque
 import sys
 import platform
 from matplotlib.patches import Rectangle
+from funciones import  filtroMediaMovil,inicializarGrafica,procesarLineaSerial
 import random  # Para añadir ruido
 
-from funciones import (
-    filtroMediaMovil,
-    inicializarGrafica,
-    procesarLineaSerial
-)
+#ACLARACION DE VARIABLES 
+#Top Left = Arriba a la Izquierda
+#Top Right = Arriba a la Derecha
+#Bottom Left = Abajo a la Izquierda
+#Bottom Right = Abajo a la derecha
+
+
+
 
 # Determinar puerto según sistema operativo
 if platform.system() == "Linux":
@@ -33,8 +36,11 @@ maxPuntos = 100
 
 # Configurar estilo oscuro
 plt.style.use('dark_background')
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8), facecolor='#1a1a1a')
-fig.suptitle('Monitor de Señales del Seguidor Solar', fontsize=14, color='white')
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 5), facecolor='#1a1a1a')
+fig.subplots_adjust(top=0.88)
+fig.suptitle('Monitor de Señales del Seguidor Solar',fontsize=15, color='white', fontweight='bold', y=0.98)
+
+
 
 # Buffers de datos
 bufferTiempo = deque(maxlen=maxPuntos)
@@ -52,19 +58,19 @@ bufferLdrBlFiltrado = deque(maxlen=maxPuntos)
 bufferLdrBrFiltrado = deque(maxlen=maxPuntos)
 
 # Líneas gráficas (originales arriba, filtradas abajo)
-lineaLdrTl, = ax1.plot([], [], 'lime', label='LDR Top Left')
-lineaLdrTr, = ax1.plot([], [], 'cyan', label='LDR Top Right')
-lineaLdrBl, = ax1.plot([], [], 'magenta', label='LDR Bottom Left')
-lineaLdrBr, = ax1.plot([], [], 'yellow', label='LDR Bottom Right')
+lineaLdrTl, = ax1.plot([], [], 'lime', label='LDR Superior a la Izquierda')
+lineaLdrTr, = ax1.plot([], [], 'cyan', label='LDR Superior a la Derecha')
+lineaLdrBl, = ax1.plot([], [], 'magenta', label='LDR Inferior a la Izquierda')
+lineaLdrBr, = ax1.plot([], [], 'yellow', label='LDR Inferior a la Derecha')
 
-lineaLdrTlFiltrado, = ax2.plot([], [], 'lime', linestyle='--', label='LDR Top Left (Filtrado)')
-lineaLdrTrFiltrado, = ax2.plot([], [], 'cyan', linestyle='--', label='LDR Top Right (Filtrado)')
-lineaLdrBlFiltrado, = ax2.plot([], [], 'magenta', linestyle='--', label='LDR Bottom Left (Filtrado)')
-lineaLdrBrFiltrado, = ax2.plot([], [], 'yellow', linestyle='--', label='LDR Bottom Right (Filtrado)')
+lineaLdrTlFiltrado, = ax2.plot([], [], 'lime', linestyle='--', label='LDR Superior a la Izquierda')
+lineaLdrTrFiltrado, = ax2.plot([], [], 'cyan', linestyle='--', label='LDR Superior a la Derecha')
+lineaLdrBlFiltrado, = ax2.plot([], [], 'magenta', linestyle='--', label='LDR Inferior a la Izquierda')
+lineaLdrBrFiltrado, = ax2.plot([], [], 'yellow', linestyle='--', label='LDR Inferior a la Derecha')
 
-# Cuadro de texto para servos - Posición ajustada más a la derecha y arriba
-servo_box_props = dict(boxstyle='round', facecolor='#333333', edgecolor='white', alpha=0.9)
-servo_text = fig.text(0.88, 0.65,  # Cambiado de 0.85, 0.5 a 0.88, 0.65
+# Cuadro de texto para servos 
+servo_box_props = dict(boxstyle='round', facecolor='#333333', edgecolor='white', alpha=0.5)
+servo_text = fig.text(0.90, 0.86,  
                      'Posición de Servomotores:\n\n'
                      'Horizontal: --°\n'
                      'Vertical: --°', 
@@ -75,15 +81,12 @@ servo_text = fig.text(0.88, 0.65,  # Cambiado de 0.85, 0.5 a 0.88, 0.65
                      horizontalalignment='center')
 
 # Indicador de estado de conexión
-status_text = fig.text(0.88, 0.55,  # Ajustado para mantener relación con servo_text
+Estado = fig.text(0.88, 0.79,  
                       'Estado: Conectado' if ser else 'Estado: Desconectado',
                       color='lime' if ser else 'red',
-                      bbox=dict(boxstyle='round', facecolor='#333333', alpha=0.7),
+                      bbox=dict(boxstyle='round', facecolor='#333333', alpha=0.5),
                       fontsize=10)
 
-# Marca Oscarm
-fig.text(0.88, 0.05, 'Oscarm', color='white', fontsize=12, style='italic', 
-         bbox=dict(facecolor='#333333', alpha=0.5))
 
 def inicializar():
     inicializarGrafica(ax1, ax2, maxPuntos)
@@ -92,13 +95,13 @@ def inicializar():
 
 def actualizar(frame):
     if ser is None:
-        status_text.set_text('Estado: Desconectado')
-        status_text.set_color('red')
+        Estado.set_text('Estado: Desconectado')
+        Estado.set_color('red')
         return (lineaLdrTl, lineaLdrTr, lineaLdrBl, lineaLdrBr,
                 lineaLdrTlFiltrado, lineaLdrTrFiltrado, lineaLdrBlFiltrado, lineaLdrBrFiltrado)
 
-    status_text.set_text('Estado: Conectado')
-    status_text.set_color('lime')
+    Estado.set_text('Estado: Conectado')
+    Estado.set_color('lime')
 
     while ser.in_waiting:
         try:
@@ -146,7 +149,7 @@ def actualizar(frame):
     return (lineaLdrTl, lineaLdrTr, lineaLdrBl, lineaLdrBr,
             lineaLdrTlFiltrado, lineaLdrTrFiltrado, lineaLdrBlFiltrado, lineaLdrBrFiltrado)
 
-ani = FuncAnimation(fig, actualizar, init_func=inicializar, blit=True, interval=50)
+ani = FuncAnimation(fig, actualizar, init_func=inicializar, blit=False, interval=50, cache_frame_data=False)
 
 plt.tight_layout()
 plt.subplots_adjust(right=0.8)  # Ajustar para el cuadro de servos
