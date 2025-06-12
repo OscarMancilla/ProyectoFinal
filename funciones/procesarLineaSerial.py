@@ -12,8 +12,12 @@ def procesarLineaSerial(linea, tamanoVentana,
     datos = linea.split(',')
     if len(datos) == 6:
 
-        #covierte los datos a enteros
-        servoH, servoV, ldrTl, ldrTr, ldrBl, ldrBr = map(int, datos)
+        try:
+            #covierte los datos a enteros
+            servoH, servoV, ldrTl, ldrTr, ldrBl, ldrBr = map(int, datos)
+
+        except ValueError:
+            return False
 
         bufferTiempo.append(time.time()) 
 
