@@ -4,7 +4,6 @@ from matplotlib.animation import FuncAnimation
 from collections import deque
 import sys
 import platform
-from matplotlib.patches import Rectangle
 from funciones import  filtroMediaMovil,inicializarGrafica,procesarLineaSerial
 import random  # Para añadir ruido
 
